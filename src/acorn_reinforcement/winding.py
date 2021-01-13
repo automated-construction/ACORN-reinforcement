@@ -4,15 +4,7 @@ from __future__ import division
 
 from math import asin
 
-from compas.geometry import distance_point_point
-from compas.geometry import midpoint_point_point
-from compas.geometry import add_vectors
-from compas.geometry import subtract_vectors
-from compas.geometry import scale_vector
-from compas.geometry import dot_vectors
-from compas.geometry import cross_vectors
-from compas.geometry import normalize_vector
-from compas.geometry import rotate_points
+from compas.geometry import distance_point_point,  midpoint_point_point, add_vectors, subtract_vectors, scale_vector, dot_vectors, cross_vectors, normalize_vector, rotate_points
 
 from compas.utilities import pairwise
 

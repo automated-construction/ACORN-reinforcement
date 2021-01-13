@@ -1,13 +1,16 @@
 from math import gcd, ceil
+
 import itertools as it
-from scipy import sparse
+
 import numpy as np
+from scipy import sparse
 import cvxpy as cvx
+
 import matplotlib.pyplot as plt
-from compas.utilities import geometric_key
 
 
 __all__ = ['lo', 'lo2']
+
 
 def lo2(nodes, lines, joint_cost=0.0):
 

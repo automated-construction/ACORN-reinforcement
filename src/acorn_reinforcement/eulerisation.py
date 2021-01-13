@@ -4,8 +4,7 @@ from __future__ import division
 
 from operator import itemgetter
 
-from itertools import combinations
-from itertools import permutations
+from itertools import combinations, permutations
 
 import networkx as nx
 
@@ -13,8 +12,7 @@ from compas.geometry import distance_point_point
 
 from compas.utilities import pairwise
 
-from acorn.topology.connected import connected_components_edges
-from acorn.utilities.misc import remove_pair_in_dict
+from acorn_reinforcement.misc import remove_pair_in_dict
 
 
 __all__ = [
@@ -248,6 +246,26 @@ def eulerize_disconnected_paths_2(G, Gtot, paths_extremities, path_cost_func, pa
 	print('edges added between components:', added_paths)
 
 	return G
+
+
+def connected_components_nodes(G):
+	return list(nx.connected_components(G))
+
+
+def connected_components_edges(G):
+	edges = list(G.edges(keys=True))
+
+	components = []
+	for nodes in connected_components_nodes(G):
+		component = []
+		for edge in reversed(edges):
+			u, v, c = edge
+			if u in nodes:
+				component.append(edge)
+				edges.remove(edge)
+		components.append(component)
+
+	return components
 
 
 # ==============================================================================
