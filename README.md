@@ -13,6 +13,9 @@ The source code includes the key functions and the example folder suggests an en
 
 **Dependencies**
 
-* compas (for geometrical operations
+* compas (for geometrical operations)
 * numpy, scipy, cvxpy (for numerical optimisation)
 * networkx (for graph data structure)
+
+**Contact**
+Robin Oval - rpho2@cam.ac.uk
