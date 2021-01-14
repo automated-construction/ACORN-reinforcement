@@ -13,9 +13,23 @@ The source code includes the key functions and the example folder suggests an en
 
 **Dependencies**
 
-* compas (for geometrical operations)
-* numpy, scipy, cvxpy (for numerical optimisation)
-* networkx (for graph data structure)
+* [compas](https://compas.dev/) (for geometrical operations)
+* [numpy](https://numpy.org/), [scipy](https://www.scipy.org/), [cvxpy](https://www.cvxpy.org/) (for numerical optimisation)
+* [networkx](https://networkx.org/) (for graph data structure)
+
+**Installation**
+
+Via your Terminal or Prompt, go to the root of your local repo copy. Then, for intallation, run:
+
+```
+pip install -e .
+```
+
+and for access with Rhino/Grasshopper, run:
+
+```
+python -m compas_rhino.install -p compas acorn_reinforcement
+```
 
 **Contact**
 
