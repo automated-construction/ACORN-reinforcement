@@ -198,15 +198,15 @@ def eulerize_disconnected_paths(G, Gtot, paths_extremities, path_cost_func, path
 def eulerize_disconnected_paths_2(G, Gtot, paths_extremities, path_cost_func, path_cost_func_args):
 
 	added_paths = []
-	print('paths_extremities', len(paths_extremities))
+	#print('paths_extremities', len(paths_extremities))
 	# pair path extremities
 	nodes = [node for extremities in paths_extremities for node in extremities]
 	node_pairs = {}
 	for u, v in paths_extremities:
 		node_pairs[u] = v
 		node_pairs[v] = u
-	print('nodes', len(nodes))
-	print('nodes set', len(list(set(nodes))))
+	#print('nodes', len(nodes))
+	#print('nodes set', len(list(set(nodes))))
 	# compute all shortest paths and their costs
 	shortest_paths_pairs = {}
 	for u, v in combinations(nodes, 2):
@@ -216,10 +216,10 @@ def eulerize_disconnected_paths_2(G, Gtot, paths_extremities, path_cost_func, pa
 			shortest_paths_pairs[(u, v)] = (path, cost)
 		else:
 			print('exception', v, node_pairs[u])
-	print('shortest_paths_pairs', len(shortest_paths_pairs))
+	#print('shortest_paths_pairs', len(shortest_paths_pairs))
 	# iteratively select and remove shortest paths
 	for _ in range(len(paths_extremities) - 1):
-		print(len(shortest_paths_pairs))
+		#print(len(shortest_paths_pairs))
 		# select the min-cost shortest path
 		((a2, b1), (path, cost)) = min(shortest_paths_pairs.items(), key=lambda tup: itemgetter(1)(tup[1]))
 

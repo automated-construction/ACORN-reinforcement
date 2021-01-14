@@ -80,11 +80,8 @@ def wind_polyline(polyline, offset):
 					path.append((1, 2))
 				cross.append(True)
 
-	# alpha = arcsin(offset * 2 / line length)
-	# depending on 0-3 or 1-2, negative or positive rotation around initial point
 	wound_lines = []
 	for i in lines:
-		print(path)
 		a = line_circle_points[i][path[i][0]]
 		b = line_circle_points[i][path[i][1]]
 		if path[i] == (0, 3) or path[i] == (1, 2):
@@ -92,16 +89,12 @@ def wind_polyline(polyline, offset):
 			b0 = lines[i][1]
 			length = distance_point_point(a0, b0)
 			angle = asin(offset * 2 / length)
-			print(angle)
 			if path[i] == (1, 2):
 				angle *= -1
 			a = rotate_points([a], angle, axis=[0.0, 0.0, 1.0], origin=a0)[0]
 			b = rotate_points([b], angle, axis=[0.0, 0.0, 1.0], origin=b0)[0]
 		wound_lines.append((a, b))
-
 	return wound_lines
-	
-	# return [[line_circle_points[i][path[i][0]], line_circle_points[i][path[i][1]]] for i in lines]
 
 
 # ==============================================================================

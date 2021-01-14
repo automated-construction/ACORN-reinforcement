@@ -13,6 +13,11 @@ __all__ = ['lo', 'lo2']
 
 
 def lo2(nodes, lines, joint_cost=0.0):
+    """Reference
+    ---------
+    L. He, M. Gilbert, X. Song, "A Python script for adaptive layout optimization of trusses", Struct. Multidisc. Optim., 2019. 
+
+    """
 
     #Calculate equilibrium matrix B
     def calcB(Nd, Cn, dof):
@@ -144,10 +149,6 @@ def lo(nodes, lines, supports, loads, joint_cost=0.0):
         q, eqn, cons = [],  [], [a>=0]
         for k, fk in enumerate(f):
             q.append(cvx.Variable(len(Cn)))
-            #print(B)
-            #print(q[k])
-            #print(f[k])
-            #print(dof)
             eqn.append(B * q[k] == fk * dof)
             cons.extend([eqn[k], q[k] >= - cvx.multiply(Cn[:,5], a), q[k] <= cvx.multiply(Cn[:,4], a)])
         prob = cvx.Problem(obj, cons)
@@ -229,7 +230,6 @@ if __name__ =='__main__':
 
     Nd, Cn, a, q = lo(nodes, lines, supports, loads)
     lo_plot(Nd, Cn, a, q, max(a) * 1e-3, str='Optimal layout', update=False, plane='xy')
-    print(a)
 
     # nodes = [
     # ((0.0, 0.0, 0.0), [0, 0, 0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]),
