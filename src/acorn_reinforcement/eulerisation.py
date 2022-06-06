@@ -96,6 +96,7 @@ def eulerize_path_general(required_edges, optional_edges, path_cost_func, path_c
 	for graph in connected_graphs:
 		if nx.is_eulerian(graph):
 			path = euler_paths_from_eulerian(graph)
+			
 		elif nx.is_semieulerian(graph):
 			path = euler_paths_from_semieulerian(graph)
 		else:
