@@ -93,6 +93,7 @@ def lo2(nodes, lines, joint_cost=0.0):
         if stopViolation(Nd, PML, dof, u, joint_cost): break
     return Nd, Cn, a, q
 
+
 def lo(nodes, lines, supports, loads, joint_cost=0.0):
     """Layout optimisation based on He et al., 2019.
 
@@ -216,30 +217,3 @@ def lo_plot(Nd, Cn, a, q, threshold, str, update=True, plane='xy'):
             u,v = 0, 1
         plt.plot(pos[:, u], pos[:, v], c, linewidth = a[i] * tk) # choose plan for plot
     plt.pause(0.01) if update else plt.show()
-
-
-if __name__ =='__main__':
-    
-    import itertools as it
-
-    nodes = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
-    lines = [(i, j, 1, 1, 1) for i, j in it.combinations(range(len(nodes)), 2)]
-    supports = {0: [0, 0, 0], 1: [1, 0, 0]}
-    loads = [{2: [10.0, 0.0, 0.0]}]
-    #loads = [{2: [1.0, 0.0, 0.0]}, {3: [1.0, 1.0, 0.0]}]
-
-    Nd, Cn, a, q = lo(nodes, lines, supports, loads)
-    lo_plot(Nd, Cn, a, q, max(a) * 1e-3, str='Optimal layout', update=False, plane='xy')
-
-    # nodes = [
-    # ((0.0, 0.0, 0.0), [0, 0, 0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]),
-    # ((1.0, 0.0, 0.0), [1, 0, 0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]),
-    # ((1.0, 1.0, 0.0), [1, 1, 1], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0]),
-    # ((0.0, 1.0, 0.0), [1, 1, 1], [0.0, 0.0, 0.0], [1.0, 1.0, 0.0]),
-    # ]
-    # lines = [(i, j, 1, 1, 1) for i, j in it.combinations(range(len(nodes)), 2)]
-    # Nd, Cn, a, q = lo2(nodes, lines)
-    # lo_plot(Nd, Cn, a, q, max(a) * 1e-3, str='Optimal layout', update=False, plane='xy')
-    # print(a)  
-
-

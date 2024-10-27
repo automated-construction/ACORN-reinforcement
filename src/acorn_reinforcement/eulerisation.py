@@ -19,6 +19,7 @@ __all__ = [
 	'rpp',
 ]
 
+
 def rpp(required_edges, optional_edges, key_to_xyz):
 	key_to_xyz = {int(key): [float(xyz) for xyz in value] for key, value in key_to_xyz.items()}
 
@@ -124,6 +125,7 @@ def euler_paths_from_semieulerian(G):
 	path = list(nx.eulerian_path(G, keys=True))
 	return path	
 
+
 def eulerize_disconnected_paths(G, Gtot, paths_extremities, path_cost_func, path_cost_func_args):
 
 	def find_shortest_path_from_targets(source, targets, path_cost_func, path_cost_func_args):
@@ -196,58 +198,6 @@ def eulerize_disconnected_paths(G, Gtot, paths_extremities, path_cost_func, path
 
 	return G
 
-def eulerize_disconnected_paths_2(G, Gtot, paths_extremities, path_cost_func, path_cost_func_args):
-
-	added_paths = []
-	#print('paths_extremities', len(paths_extremities))
-	# pair path extremities
-	nodes = [node for extremities in paths_extremities for node in extremities]
-	node_pairs = {}
-	for u, v in paths_extremities:
-		node_pairs[u] = v
-		node_pairs[v] = u
-	#print('nodes', len(nodes))
-	#print('nodes set', len(list(set(nodes))))
-	# compute all shortest paths and their costs
-	shortest_paths_pairs = {}
-	for u, v in combinations(nodes, 2):
-		if v != node_pairs[u]:
-			path = nx.shortest_path(Gtot, source=u, target=v)
-			cost = path_cost_func(path, path_cost_func_args)
-			shortest_paths_pairs[(u, v)] = (path, cost)
-		else:
-			print('exception', v, node_pairs[u])
-	#print('shortest_paths_pairs', len(shortest_paths_pairs))
-	# iteratively select and remove shortest paths
-	for _ in range(len(paths_extremities) - 1):
-		#print(len(shortest_paths_pairs))
-		# select the min-cost shortest path
-		((a2, b1), (path, cost)) = min(shortest_paths_pairs.items(), key=lambda tup: itemgetter(1)(tup[1]))
-
-		added_paths.append(path)
-		G.add_edges_from(nx.utils.pairwise(path))
-
-		# a1-a2---b1-b2
-		a1 = node_pairs[a2]
-		b2 = node_pairs[b1]
-
-		to_delete = []
-		for pair in shortest_paths_pairs:
-			if a2 in pair or b1 in pair or (a1 in pair and b2 in pair):
-				to_delete.append(pair)
-		for pair in to_delete:
-			remove_pair_in_dict(shortest_paths_pairs, pair)
-
-		# a1-(a2---b1)-b2
-		node_pairs[a1] = b2
-		node_pairs[b2] = a1
-		del node_pairs[a2]
-		del node_pairs[b1]
-	
-	print('edges added between components:', added_paths)
-
-	return G
-
 
 def connected_components_nodes(G):
 	return list(nx.connected_components(G))
@@ -267,40 +217,3 @@ def connected_components_edges(G):
 		components.append(component)
 
 	return components
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-	import itertools as it
-	import networkx as nx
-
-	key_to_xyz = {
-		0: [0.0, 0.0, 0.0],
-		1: [1.0, 0.0, 0.0],
-		2: [2.0, 0.0, 0.0],
-		3: [0.0, 1.0, 0.0],
-		4: [1.0, 1.0, 0.0],
-		5: [2.0, 1.0, 0.0],
-		6: [0.0, 2.0, 0.0],
-		7: [1.0, 2.0, 0.0],
-		8: [2.0, 2.0, 0.0],
-		9: [0.0, 3.0, 0.0],
-		10: [1.0, 3.0, 0.0],
-		11: [2.0, 3.0, 0.0],
-	}
-
-	required_edges_1 = [(0,3), (1,4), (2,5)]
-	required_edges_2 = [(0,3), (1,4), (2,5), (6,3), (7,4), (8,5)]
-	required_edges_3 = [(0,1), (1,4), (4,3), (3,0), (5,8)]
-	required_edges_4 = [(0,1), (1,3), (3,0), (5,8), (8,7), (7,5)]
-	required_edges_4 = [(0,1), (1,3), (3,0), (5,8), (8,7), (7,5), (6,9)]
-
-	optional_edges = list(it.combinations(key_to_xyz.keys(), 2))
-	
-	path = rpp(required_edges_4, optional_edges, key_to_xyz)
-
-	print('path:', path)

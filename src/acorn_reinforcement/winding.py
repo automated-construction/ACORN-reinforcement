@@ -4,7 +4,7 @@ from __future__ import division
 
 from math import asin
 
-from compas.geometry import distance_point_point,  midpoint_point_point, add_vectors, subtract_vectors, scale_vector, dot_vectors, cross_vectors, normalize_vector, rotate_points
+from compas.geometry import distance_point_point, add_vectors, subtract_vectors, scale_vector, dot_vectors, cross_vectors, normalize_vector, rotate_points
 
 from compas.utilities import pairwise
 
@@ -95,37 +95,3 @@ def wind_polyline(polyline, offset):
 			b = rotate_points([b], angle, axis=[0.0, 0.0, 1.0], origin=b0)[0]
 		wound_lines.append((a, b))
 	return wound_lines
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-	from compas_plotters.plotter import Plotter
-
-	points = {
-		0: [0.0, 0.0, 0.0],
-		1: [1.0, 0.0, 0.0],
-		2: [2.0, 0.0, 0.0],
-		3: [0.0, 1.0, 0.0],
-		4: [1.0, 1.0, 0.0],
-		5: [2.0, 1.0, 0.0],
-		6: [0.0, 2.0, 0.0],
-		7: [1.0, 2.0, 0.0],
-		8: [2.0, 2.0, 0.0],
-	}
-	point_indices = [0, 4, 8, 5, 7, 6]
-	polyline = [points[i] for i in point_indices]
-	offset = .3
-	wound_lines = wind_polyline(polyline, offset)
-
-	plot_points = [{'pos': xyz, 'radius': 0.02, 'facecolor': '#ffffff'} for xyz in points.values()]
-	plot_lines = [{'start': u, 'end': v, 'width': 1.0} for u, v in wound_lines]
-
-	plotter = Plotter(figsize=(5, 5))
-	plotter.draw_points(plot_points)
-	plotter.draw_lines(plot_lines)
-	plotter.show()
-	

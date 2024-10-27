@@ -3,10 +3,9 @@ import itertools as it
 
 import json
 
-from compas.utilities import linspace, meshgrid, pairwise
-from compas.geometry import add_vectors, distance_point_point, distance_point_point_xy, dot_vectors
-
-from compas.datastructures import Mesh, mesh_quads_to_triangles
+from compas.utilities import linspace, pairwise
+from compas.geometry import add_vectors, distance_point_point, distance_point_point_xy
+from compas.datastructures import Mesh
 
 from acorn_reinforcement.strutandtie import StrutAndTie
 from acorn_reinforcement.eulerisation import rpp
@@ -42,7 +41,7 @@ for j in range(ny - 1):
 		faces_bottom.append(list(reversed(face)))
 		faces_top.append([k + N for k in face])
 mesh = Mesh.from_vertices_and_faces(nodes, faces_bottom + faces_top)
-mesh_quads_to_triangles(mesh)
+mesh.quads_to_triangles()
 
 ### EDGES ###
 edges = []
@@ -58,25 +57,10 @@ print('{} nodes and {} edges'.format(len(nodes), len(edges)))
 
 ### SUPPORT CONDITIONS ###
 supports = {0: [1, 1, 0], nx - 1: [1, 1, 0], nx * (ny - 1): [1, 1, 0], N - 1: [1, 1, 0]}
-# supports = {0: [0, 0, 0], nx - 1: [0, 0, 0], nx * (ny - 1): [0, 0, 0], N - 1: [0, 0, 0]}
 
 ### LOAD CONDITIONS ###
 loads = [
 	{i: [0.0, 0.0, -0.1] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.1, 0.0, -0.1] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [-0.1, 0.0, -0.1] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.1, -0.1] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, -0.1, -0.1] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.0, -.1] if nodes[i][0] == x0 + dx / 2 and nodes[i][1] == y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.0, -0.1] if nodes[i][0] == x0 + dx / 2 else [0.0, 0.0, +0.1] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.0, -.1] if nodes[i][0] <= x0 + dx / 2 and nodes[i][1] <= y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.0, -.1] if nodes[i][0] >= x0 + dx / 2 and nodes[i][1] <= y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.0, -.1] if nodes[i][0] >= x0 + dx / 2 and nodes[i][1] >= y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.0, -.1] if nodes[i][0] <= x0 + dx / 2 and nodes[i][1] >= y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	#{i: [-0.1, 0.0, -.1] if nodes[i][0] <= x0 + dx / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.1, 0.0, -.1] if nodes[i][0] >= x0 + dx / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, 0.1, -.1] if nodes[i][0] >= y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
-	# {i: [0.0, -0.1, -.1] if nodes[i][0] <= y0 + dy / 2 else [0.0, 0.0, 0.0] for i in range(int(len(nodes) / 2), len(nodes))},
 	]
 
 ### ASSEMBLE STRUT-AND-TIE MODEL ###
@@ -94,12 +78,12 @@ threshold_a = max(a) * 1e-3
 # plot layout
 lo_plot(Nd, Cn, a, q, threshold_a, str='Optimal layout', update=False)
 
-lines_and_forces = [(sat.node_coordinates(u), sat.node_coordinates(v), list(sat.edge_force((u, v)).values())) for u, v in sat.edges()]# if max(sat.edge_force((u, v)).values()) > threshold_f]
+lines_and_forces = [(sat.node_coordinates(u), sat.node_coordinates(v), list(sat.edge_force((u, v)).values())) for u, v in sat.edges()]
 
-load_paths = {i: 0.0 for i in sat.edge_force(sat.get_any_edge())}
-tensile_load_paths = {i: 0.0 for i in sat.edge_force(sat.get_any_edge())}
+load_paths = {i: 0.0 for i in sat.edge_force(list(sat.edges())[0])}
+tensile_load_paths = {i: 0.0 for i in sat.edge_force(list(sat.edges())[0])}
 for u, v in sat.edges():
-	l = sat.edge_length(u, v)
+	l = sat.edge_length((u, v))
 	for i, fi in sat.edge_force((u, v)).items():
 		load_paths[i] += abs(fi) * l
 		tensile_load_paths[i] += max(0, fi) * l
@@ -129,7 +113,7 @@ for (u, v), passes in edge_req_passes.items():
 	else:
 		opt.append((u, v))
 
-required_filament_length = sum([sat.edge_length(u, v) for u, v in req_bot + req_top])
+required_filament_length = sum([sat.edge_length((u, v)) for u, v in req_bot + req_top])
 
 print('min and max required number of passes before semi-eulerisation', min_req_passes, max_req_passes)
 print('required filament length before semi-eulerisation', required_filament_length)

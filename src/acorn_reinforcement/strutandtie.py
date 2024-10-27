@@ -4,9 +4,9 @@ from __future__ import division
 
 from math import ceil
 
-from compas.datastructures import Network
+from compas.datastructures import Graph
 
-from compas.geometry import scale_vector, normalize_vector, subtract_vectors, sum_vectors, length_vector
+from compas.geometry import scale_vector, normalize_vector, subtract_vectors, sum_vectors
 
 from compas.utilities import geometric_key
 
@@ -14,10 +14,10 @@ from compas.utilities import geometric_key
 __all__ = ['StrutAndTie']
 
 
-class StrutAndTie(Network):
+class StrutAndTie(Graph):
 
 	def __init__(self):
-		super(Network, self).__init__()
+		super(StrutAndTie, self).__init__()
 		self.update_default_edge_attributes({'force': {}, 'strength_tension': 1, 'strength_compression': 1, 'start_with': True, 'cross_section': None})
 		self.update_default_node_attributes({'support': [1, 1, 1], 'load': {}})
 
@@ -38,12 +38,11 @@ class StrutAndTie(Network):
 		return sat
 
 	def disassemble(self):
-		#return self.nodes(data=True), self.edges(data=True)
-		key_to_idx = self.key_index()
+		key_to_idx = {key: i for i, key in enumerate(self.nodes())}
 		nodes = [self.node_coordinates(key) for key in self.nodes()]
 		edges = [(key_to_idx[u], key_to_idx[v], self.edge_attribute((u, v), 'start_with'), self.edge_attribute((u, v), 'strength_tension'), self.edge_attribute((u, v), 'strength_compression')) for u, v in self.edges()]
 		supports = {key: self.node_support(key) for key in self.nodes()}
-		loads = [{key: self.node_load(key)[k] for key in self.nodes()} for k in range(len(self.node_load(self.get_any_node())))]
+		loads = [{key: self.node_load(key)[k] for key in self.nodes()} for k in range(len(self.node_load(list(self.nodes())[0])))]
 		return nodes, edges, supports, loads
 
 # ==============================================================================
@@ -63,7 +62,6 @@ class StrutAndTie(Network):
 			return self.node_attribute(key, 'load', load)
 		else:
 			return self.node_attribute(key, 'load')
-
 
 # ==============================================================================
 # Forces
@@ -92,7 +90,6 @@ class StrutAndTie(Network):
 					if abs(supp[i] * fr[i]) > tol:
 						return False
 		return True
-
 
 	def store_edge_forces(self, edge_to_force):
 		# forces in kN, compression > 0 and tension < 0
@@ -158,29 +155,3 @@ class StrutAndTie(Network):
 		if edges is None:
 			edges = self.edges()
 		return [int(ceil(self.edge_cross_section(edge) / element_cross_section)) for edge in edges]
-
-# ==============================================================================
-# Cross-sections
-# ==============================================================================
-
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-	import itertools as it
-
-	nodes = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
-	lines = [(i, j) for i, j in it.combinations(range(len(nodes)), 2)]
-	supports = {0: [0, 0, 0], 1: [1, 0, 0]}
-	loads = {2: [1.0, 0.0, 0.0]}
-
-	sat = StrutAndTie.from_nodes_and_edges(nodes, lines)
-	for node, support in supports.items():
-		sat.node_support(node, support)
-	for node, load in loads.items():
-		sat.node_load(node, load)
-
